@@ -1,0 +1,20 @@
+Package: SoyNAM
+Type: Package
+Title: Soybean Nested Association Mapping Dataset
+Version: 1.6
+Date: 2018-02-13
+Author: Alencar Xavier, William Beavis, James Specht, Brian Diers, Rouf Mian, Reka Howard,
+	George Graef, Randall Nelson, William Schapaugh, Dechun Wang, Grover Shannon, Leah McHale,
+	Perry Cregan, Qijian Song, Miguel Lopez, William Muir, Katy Rainey.
+Maintainer: Alencar Xavier <alenxav@gmail.com>
+Description: Genomic and multi-environmental soybean data. Soybean Nested
+    Association Mapping (SoyNAM) project dataset funded by the United Soybean Board
+    (USB). See <doi.org/10.1534/g3.118.200332> and <doi.org/10.1534/g3.117.300300>. 
+    BLUP function formats data for genome-wide prediction and association analysis.
+License: GPL-3
+Imports: NAM, lme4, reshape2
+Depends: R (>= 3.2)
+Packaged: 2018-10-01 13:48:18 UTC; u787935
+NeedsCompilation: yes
+Repository: CRAN
+Date/Publication: 2018-10-01 17:30:07 UTC

@@ -1,0 +1,3 @@
+soybase: data.check.qa data.line.qa gen.qa
+soyin: data.check.in data.line.in gen.in
+soynam: data.check data.line gen.raw
