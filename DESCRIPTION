@@ -2,7 +2,7 @@ Package: SoyNAM
 Type: Package
 Title: Soybean Nested Association Mapping Dataset
 Version: 1.6
-Date: 2018-02-13
+Date: 2019-02-13
 Author: Alencar Xavier, William Beavis, James Specht, Brian Diers, Rouf Mian, Reka Howard,
 	George Graef, Randall Nelson, William Schapaugh, Dechun Wang, Grover Shannon, Leah McHale,
 	Perry Cregan, Qijian Song, Miguel Lopez, William Muir, Katy Rainey.
