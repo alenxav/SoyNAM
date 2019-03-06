@@ -24,6 +24,7 @@ Parental lines were sequenced to derive the SNP allele calls. A total of 5303 SN
 \usage{
 data(soybase)
 data(soynam)
+data(soyin)
 }
 \details{
 Datasets of the SoyNAM project, original and quality assured (QA) versions. Data was downloaded on November 16th 2015 from \url{soynam.org}. The data collected in Indiana was collected in 2013-2014 and made available on January 2018. Studies performed on the entire dataset with additional detail about the experimental settings include Diers et al. (2018) and Xavier et al. (2018).
