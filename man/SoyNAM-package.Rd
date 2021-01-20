@@ -13,8 +13,8 @@ Soybean Nested Association Mapping Dataset
 \tabular{ll}{
 Package: \tab NAM\cr
 Type: \tab Package\cr
-Version: \tab 1.6 \cr
-Date: \tab 2019-02-13\cr
+Version: \tab 1.6.1 \cr
+Date: \tab 2020-01-20\cr
 License: \tab GPL-3 \cr
 }
 }
