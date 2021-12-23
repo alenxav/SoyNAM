@@ -1,4 +1,4 @@
-BLUP=function(trait="yield",family="all",env="all",
+BLUP=function(trait="yield",family="all",env="all",dereg=FALSE,
               MAF=0.05,use.check=TRUE,impute="FM",rm.rep=TRUE){
     
     # Line added for debugging purpose
@@ -55,9 +55,21 @@ BLUP=function(trait="yield",family="all",env="all",
     }else{
       cat('solving BLUP of phenotypes\n')
       blup=lmer(Y~(1|E)+(1|G))}
-    BV = coef(blup)$G[,1]
-    names(BV) = rownames(coef(blup)$G)
-    BV = BV[rownames(geno)]
+    
+    BV = rowMeans(ranef(blup)$G)
+    ge = intersect(names(BV),rownames(geno))
+    BV = BV[ge]
+    BV = BV+mean(Y,na.rm=T)
+    
+    # Check variance components
+    n = c(table(blup@frame$G))[ge]
+    vc = data.frame(VarCorr(blup))
+    vg = vc$vcov[1]
+    ve = vc$vcov[3]
+    r2 = vg/(vg+ve/n)
+    cat('Broad-sense H2 of',trait,'is',round(mean(r2),2),'\n')
+    # Deregression
+    if(dereg){BV = BV/r2}
     
     if(is.numeric(family)){
       BV = BV[fam%in%family]
@@ -77,17 +89,16 @@ BLUP=function(trait="yield",family="all",env="all",
     
     if(anyNA(geno)){
       
-      if(impute=="RF"){
-        CHR = as.numeric(substring(colnames(geno),1,1))
-        for(i in 1:length(chr)){
-          w = which(CHR==i)
-          geno[,w] = snpQC(geno[,w],1,0,F,T)
-          cat('DONE IMPUTING CHROMOSOME',i,'\n')
-        }  
+      if(impute=="EXP"){
+        cat('Imputing NA using allele expectation\n')
+        geno = IMP(geno)
+        if(anyNA(geno)){
+          geno[is.na(geno)] = 1
+        }
       }
       
       if(impute=="FM"){
-        cat('Imputing with expectation (based on transition prob) \n')
+        cat('Imputing NA using transition probabilities with neighbor SNPs \n')
         geno = markov(geno,chr)
       }
       
@@ -100,17 +111,18 @@ BLUP=function(trait="yield",family="all",env="all",
     
     if(!anyNA(geno)){
       if(rm.rep){
-        cat('removing repeated genotypes\n')
-        d=cleanREP(y = cbind(BV,BV),fam = fam,gen = geno)
-        BV=d$y[,1]
-        geno=d$gen
-        Chrom=chr
-        fam=d$fam
+        cat('removing duplicates\n')
+        w = duplicated(c(tcrossprod(runif(ncol(geno)),geno)))
+        if(any(w)){
+          cat(sum(w),'individuals with identical genotypic profile\n')
+          BV=BV[!w]
+          geno=geno[!w,]
+          fam=fam[!w]
+        }
       }
-      rownames(geno) = names(BV)
     }
   
-    LIST = list('Phen'=BV,'Gen'=geno,'Chrom'=chr,'Fam'=fam)
+    LIST = list('Phen'=BV,'Gen'=geno,'Chrom'=chr,'Fam'=fam,'r2'=r2,'nReps'=n)
     
     return(LIST)
   }
@@ -137,3 +149,41 @@ ENV=function(trait="yield"){
   gen = markov(gen,chr)
   h = list(Y=test,gen=gen,fam=fam,chr=chr)
   return(h)}
+
+# Extended Flexible Gwas
+gwnam = function(pheno,geno,pop){
+  tag = 0; numSnps = ncol(geno)
+  pb = txtProgressBar(style = 3)
+  sma = apply(geno,2,function(x,y,pop){
+    # Print marker under evaluation
+    tag <<- tag+1
+    TmpDta = data.frame(y=y,f=factor(pop),x=x)
+    lvl = levels(TmpDta$f)
+    TmpDta = droplevels.data.frame(TmpDta[rowMeans(!is.na(TmpDta))==1,])
+    Vy = c(var(TmpDta$y))
+    # Null model
+    fit0 = lmer(y~(1|f),TmpDta)
+    ll0 = logLik(fit0)
+    ## Model 1 - Within-family effect
+    fit1 = suppressMessages(lmer(y~(1|f)+(1|f):x,TmpDta))
+    eff1 = ranef(fit1)$f[,2]
+    names(eff1) = rownames(ranef(fit1)$f)
+    eff1 = eff1[lvl]
+    ll1 = logLik(fit1)
+    LRT1 = ll1-ll0
+    PVAL1 = -log10(1-pchisq(LRT1,1))
+    ## Model 2 - Across-family effect
+    eff2 = suppressMessages(lmer(y~x+(1|f),TmpDta))@beta[2]
+    ## Coeff of determination
+    R2 = 1-c(fit0@devcomp$cmp['sigmaREML'],
+             fit1@devcomp$cmp['sigmaREML'])/Vy
+    names(R2)=paste0('R2.model',0:1)
+    ## Output
+    NumObs = nrow(TmpDta)
+    out = c(NumObs,P1=PVAL1,R2,Fxd=eff2,eff1)
+    setTxtProgressBar(pb, tag/numSnps)
+    return(out)},y=pheno,pop=pop)
+  rownames(sma) = c('NumObs','MinusLogPvalue','NullModel_R2','AltrModel_R2','OverallSnpEffect',
+                    paste('SnpEffPop',sort(unique(pop)),sep=''))
+  close(pb); sma[is.na(sma)] = 0
+  return(data.frame(t(sma)))}

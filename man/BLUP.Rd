@@ -1,6 +1,8 @@
 \name{BLUP}
 \alias{BLUP}
 \alias{ENV}
+\alias{gwnam}
+\alias{mrr}
 \title{
 Best Linear Unbias Predictor
 }
@@ -8,7 +10,7 @@ Best Linear Unbias Predictor
 Genetic values for a given trait computed by REML.
 }
 \usage{
-BLUP(trait="yield",family="all",env="all",
+BLUP(trait="yield",family="all",env="all",dereg=FALSE,
      MAF=0.05,use.check=TRUE,impute="FM",rm.rep=TRUE)
 }
 \arguments{
@@ -21,6 +23,9 @@ Numberic vector or "all". Which SoyNAM families to use.
   \item{env}{
 Numberic vector or "all". Which environments to use. The environments are coded as follows: 1 (IA_2012), 2 (IA_2013), 3 (IL_2011), 4 (IL_2012), 5 (IL_2013), 6 (IN_2012), 7 (IN_2013), 8 (KS_2012), 9 (KS_2013), 10 (MI_2012), 11 (MO_2012), 12 (MO_2013), 13 (NE_2011), 14 (NE_2012), 15 (OHmc_2012), 16 (OHmc_2013), 17 (OHmi_2012) and 18 (OHmi_2013).
 }
+  \iten{dereg=FALSE}{
+Logic. If true, deregress BLUPs (remove shrinkage).
+}
   \item{MAF}{
 Numeric. Minor allele frequency threshold for the markers.
 }
@@ -29,7 +34,7 @@ Logical. If TRUE, it includes a control term as fixed effect in the model.
 }
 
   \item{impute}{
-NULL, 'RF' of 'FM'. If 'RF', it imputes missing genotypes using random forest. If 'FM' is imputes missing genotypes using a forward Markov Chain algorithm, filling missing loci with the most likely genotype based on the previous marker.
+NULL, 'EXP' of 'FM'. If 'EXP', it imputes missing genotypes using expectation (allele frequency). If 'FM' is imputes missing genotypes using a forward Markov Chain algorithm, filling missing loci with the most likely genotype based on the previous marker.
 }
 
   \item{rm.rep}{
