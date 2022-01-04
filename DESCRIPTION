@@ -12,7 +12,7 @@ Description: Genomic and multi-environmental soybean data. Soybean Nested
     (USB). BLUP function formats data for genome-wide prediction and association analysis.
 License: GPL-3
 Imports: NAM, lme4, reshape2, Rcpp, RcppEigen
-LinkingTo: RcppEigen
+LinkingTo: Rcpp, RcppEigen
 Depends: R (>= 3.6.0)
 Packaged: 2018-10-01 13:48:18 UTC; u787935
 NeedsCompilation: yes
